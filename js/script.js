@@ -1,5 +1,19 @@
 window.addEventListener('DOMContentLoaded', () => {
-    function req() {
+    const form = document.querySelector('form');
+
+    function req(e) {
+        e.prevent.default();
+
+        let formData = new FormData(form);
+        formData.append('id', Math.random());
+        console.log(formData);
+
+        let obj = {};
+        formData.forEach((value, key) => {
+            obj[key] = value;
+        });
+        // let json = JSON.stringify(obj);
+
         // const request = new XMLHttpRequest();
         // request.open('GET', 'http://localhost:3000/people');
         // request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
@@ -13,37 +27,44 @@ window.addEventListener('DOMContentLoaded', () => {
         //         console.error('Что то пошло не так');
         //     }
         // });
+        // getResource('http://localhost:3000/people', obj)
+        //     .then((data) => createCards(data.data))
+        //     .catch((err) => console.error(err));
+        // this.remove();
 
-        getResource('http://localhost:3000/people')
-            .then((data) => console.log(data))
-            .catch((err) => console.error(err));
-
-        this.remove();
+        axios.post('http://localhost:3000/people', obj);
     }
 
-    document.querySelector('button').addEventListener('click', req, { once: true });
+    form.addEventListener('submit', (e) => req(e), { once: true });
 
-    // async function getResource(url) {
-    //     const res = await fetch(`${url}`);
+    async function getResource(url, data) {
+        const res = await fetch(`${url}`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
 
-    //     if (!res.ok) {
-    //         throw new Error(`Could not fetch ${url}, status ${res.status}`);
-    //     }
-
-    //     return await res.json();
-    // }
-
-    async function getResource(url) {
-        const res = await axios(`${url}`);
-
-        if (res.status !== 200) {
+        if (!res.ok) {
             throw new Error(`Could not fetch ${url}, status ${res.status}`);
         }
 
-        return await res;
+        return await res.json();
     }
 
+    // async function getResource(url) {
+    //     const res = await axios(`${url}`);
+
+    //     if (res.status !== 200) {
+    //         throw new Error(`Could not fetch ${url}, status ${res.status}`);
+    //     }
+
+    //     return await res;
+    // }
+
     function createCards(response) {
+        console.log(response);
         response.forEach((item) => {
             let card = document.createElement('div');
 
